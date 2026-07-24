@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador · Baño de cavitación ultrasónica · Cebolla morada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#100c18;
+    --bg-panel:#1a1526;
+    --bg-panel-2:#211a30;
+    --bg-card:#251e35;
+    --line:#332a45;
+    --line-soft:#2a2338;
+    --text:#f3eef9;
+    --text-muted:#a89bbe;
+    --text-faint:#6f6486;
+
+    --onion:#c93f95;
+    --onion-soft:#7d2f66;
+    --acoustic:#31c9b0;
+    --acoustic-soft:#1f7d6d;
+    --thermal:#f2a341;
+    --thermal-soft:#8a5c25;
+    --cool:#4d9de0;
+    --cool-soft:#2c5c82;
+    --warn:#e2574c;
+
+    --radius:10px;
+    --radius-lg:16px;
+    --font-display:"Fraunces", serif;
+    --font-body:"IBM Plex Sans", sans-serif;
+    --font-mono:"IBM Plex Mono", monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 12% -10%, rgba(201,63,149,0.16), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 90% 10%, rgba(49,201,176,0.10), transparent 55%),
+      var(--bg-deep);
+    color:var(--text);
+    font-family:var(--font-body);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  a{color:var(--acoustic);}
+
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+    margin:0 0 10px;
+  }
+
+  .vc-tag{
+    display:inline-block;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.08em;
+    color:var(--acoustic);
+    background:rgba(49,201,176,0.10);
+    border:1px solid rgba(49,201,176,0.35);
+    border-radius:5px;
+    padding:2px 7px;
+    margin-right:10px;
+    vertical-align:middle;
+    text-transform:uppercase;
+  }
+
+  h1{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:clamp(28px, 4.4vw, 46px);
+    line-height:1.08;
+    margin:0 0 16px;
+    letter-spacing:-0.01em;
+  }
+  h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:clamp(20px, 2.4vw, 26px);
+    margin:0 0 4px;
+    letter-spacing:-0.005em;
+  }
+  h3{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:14px;
+    margin:0 0 10px;
+    color:var(--text);
+  }
+  p{margin:0 0 12px;}
+  .lead{color:var(--text-muted); font-size:16px; max-width:52ch;}
+
+  main{max-width:1180px; margin:0 auto; padding:0 24px 80px;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:56px 24px 40px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .hero-inner{max-width:1180px; margin:0 auto;}
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    gap:48px;
+    align-items:center;
+  }
+  @media (max-width: 880px){
+    .hero-grid{grid-template-columns:1fr; gap:32px;}
+  }
+
+  .hero-stats{
+    display:flex;
+    gap:28px;
+    margin:26px 0 22px;
+    flex-wrap:wrap;
+  }
+  .stat{display:flex; flex-direction:column; gap:2px;}
+  .stat-value{
+    font-family:var(--font-mono);
+    font-size:26px;
+    font-weight:600;
+    color:var(--text);
+  }
+  .stat-value small{font-size:14px; color:var(--text-muted); margin-left:2px; font-weight:400;}
+  .stat-label{font-size:12px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.05em;}
+
+  .hero-controls{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+  .btn{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:14px;
+    padding:11px 20px;
+    border-radius:999px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:transform 0.12s ease, filter 0.12s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{
+    background:linear-gradient(135deg, var(--onion), #9a2c74);
+    color:#fff;
+    box-shadow:0 6px 20px rgba(201,63,149,0.35);
+  }
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-ghost{
+    background:transparent;
+    border-color:var(--line);
+    color:var(--text-muted);
+  }
+  .btn-ghost:hover{color:var(--text); border-color:var(--text-muted);}
+  .speed-label{
+    font-size:12px; color:var(--text-faint);
+    display:flex; align-items:center; gap:8px;
+    font-family:var(--font-mono);
+  }
+  select{
+    background:var(--bg-card);
+    color:var(--text);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:6px 8px;
+    font-family:var(--font-mono);
+    font-size:12px;
+  }
+
+  .status-badge{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:var(--font-mono); font-size:11px;
+    padding:4px 10px; border-radius:999px;
+    border:1px solid var(--line);
+    color:var(--text-muted);
+    margin-bottom:14px;
+  }
+  .status-dot{width:7px; height:7px; border-radius:50%; background:var(--text-faint);}
+  .status-badge.running .status-dot{background:var(--acoustic); box-shadow:0 0 8px var(--acoustic);}
+  .status-badge.steady .status-dot{background:var(--thermal); box-shadow:0 0 8px var(--thermal);}
+  .status-badge.done .status-dot{background:var(--onion); box-shadow:0 0 8px var(--onion);}
+
+  /* ---------- TANK VISUAL ---------- */
+  .hero-visual{display:flex; justify-content:center;}
+  .tank-wrap{
+    position:relative;
+    width:100%;
+    max-width:280px;
+  }
+  #tankSvg{width:100%; height:auto; display:block; filter:drop-shadow(0 20px 40px rgba(0,0,0,0.5));}
+
+  /* ---------- SECTIONS ---------- */
+  section.panel{
+    padding:44px 0;
+    border-bottom:1px solid var(--line-soft);
+  }
+  section.panel:last-of-type{border-bottom:none;}
+  .panel-head{margin-bottom:24px;}
+  .panel-desc{color:var(--text-muted); font-size:14px; max-width:70ch; margin-top:6px;}
+
+  /* ---------- PARAM CARDS ---------- */
+  .param-groups{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:18px;
+  }
+  @media (max-width:900px){ .param-groups{grid-template-columns:1fr;} }
+
+  .card{
+    background:var(--bg-panel);
+    border:1px solid var(--line-soft);
+    border-radius:var(--radius-lg);
+    padding:20px;
+  }
+  .card h3{display:flex; align-items:center; gap:8px;}
+  .dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+  .dot.acoustic{background:var(--acoustic);}
+  .dot.thermal{background:var(--thermal);}
+  .dot.mass{background:var(--onion);}
+
+  .field{margin-bottom:16px;}
+  .field:last-child{margin-bottom:0;}
+  .field-top{
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-bottom:6px;
+  }
+  .field-label{font-size:12.5px; color:var(--text-muted);}
+  .field-value{
+    font-family:var(--font-mono); font-size:13px; font-weight:600; color:var(--text);
+  }
+  .field-value .unit{color:var(--text-faint); font-weight:400; font-size:11px; margin-left:2px;}
+
+  input[type=range]{
+    -webkit-appearance:none;
+    width:100%;
+    height:4px;
+    border-radius:3px;
+    background:var(--line);
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:16px; height:16px;
+    border-radius:50%;
+    background:var(--acoustic);
+    border:2px solid var(--bg-deep);
+    cursor:pointer;
+    box-shadow:0 0 0 3px rgba(49,201,176,0.18);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:16px; height:16px; border-radius:50%;
+    background:var(--acoustic); border:2px solid var(--bg-deep); cursor:pointer;
+  }
+  .card.mass-card input[type=range]::-webkit-slider-thumb{background:var(--onion); box-shadow:0 0 0 3px rgba(201,63,149,0.18);}
+  .card.thermal-card input[type=range]::-webkit-slider-thumb{background:var(--thermal); box-shadow:0 0 0 3px rgba(242,163,65,0.18);}
+
+  .field-note{font-size:11px; color:var(--text-faint); margin-top:5px;}
+
+  /* ---------- CHARTS ---------- */
+  .chart-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+  }
+  @media (max-width:880px){ .chart-row{grid-template-columns:1fr;} }
+  .chart-card{
+    background:var(--bg-panel);
+    border:1px solid var(--line-soft);
+    border-radius:var(--radius-lg);
+    padding:18px 18px 14px;
+  }
+  .chart-card canvas{width:100%; height:220px; display:block;}
+  .chart-legend{
+    display:flex; gap:16px; flex-wrap:wrap;
+    margin-top:10px;
+    font-size:11.5px; color:var(--text-muted);
+    font-family:var(--font-mono);
+  }
+  .legend-item{display:flex; align-items:center; gap:6px;}
+  .legend-swatch{width:12px; height:3px; border-radius:2px;}
+  .legend-swatch.dashed{background:none; border-top:2px dashed var(--text-faint); height:0; width:14px;}
+
+  /* ---------- READOUTS ---------- */
+  .readout-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(190px,1fr));
+    gap:14px;
+  }
+  .readout{
+    background:var(--bg-panel);
+    border:1px solid var(--line-soft);
+    border-left:3px solid var(--line);
+    border-radius:10px;
+    padding:16px 16px;
+  }
+  .readout.c-thermal{border-left-color:var(--thermal);}
+  .readout.c-cool{border-left-color:var(--cool);}
+  .readout.c-onion{border-left-color:var(--onion);}
+  .readout.c-acoustic{border-left-color:var(--acoustic);}
+  .readout-label{font-size:11.5px; color:var(--text-muted); margin-bottom:8px;}
+  .readout-value{font-family:var(--font-mono); font-size:22px; font-weight:600;}
+  .readout-value small{font-size:12px; font-weight:400; color:var(--text-faint); margin-left:3px;}
+  .readout-formula{font-family:var(--font-mono); font-size:10.5px; color:var(--text-faint); margin-top:8px;}
+
+  /* ---------- FLOW BAR (1st law) ---------- */
+  .flow-bar{
+    display:flex;
+    width:100%;
+    height:38px;
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line-soft);
+    margin-bottom:14px;
+  }
+  .flow-seg{height:100%; transition:width 0.3s ease;}
+  .flow-legend{
+    list-style:none; padding:0; margin:0 0 18px;
+    display:flex; flex-wrap:wrap; gap:14px 22px;
+    font-size:12.5px; color:var(--text-muted);
+  }
+  .flow-legend li{display:flex; align-items:center; gap:7px;}
+  .flow-legend .sw{width:11px; height:11px; border-radius:3px; flex-shrink:0;}
+  .flow-legend .amt{font-family:var(--font-mono); color:var(--text); margin-left:2px;}
+
+  .interpretation{
+    background:var(--bg-panel-2);
+    border:1px solid var(--line-soft);
+    border-radius:12px;
+    padding:16px 18px;
+    font-size:14px;
+    color:var(--text-muted);
+  }
+  .interpretation strong{color:var(--text); font-weight:600;}
+
+  /* ---------- SECOND LAW ---------- */
+  .twocol{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:26px;
+  }
+  @media (max-width:880px){ .twocol{grid-template-columns:1fr;} }
+  .irrev-list{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:14px;}
+  .irrev-list li{
+    padding-left:18px;
+    border-left:2px solid var(--line);
+    font-size:13.5px;
+    color:var(--text-muted);
+  }
+  .irrev-list b{color:var(--text); display:block; font-size:13.5px; margin-bottom:2px;}
+
+  .exergy-summary{
+    background:var(--bg-panel);
+    border:1px solid var(--line-soft);
+    border-radius:var(--radius-lg);
+    padding:20px;
+  }
+  .exergy-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:9px 0; border-bottom:1px solid var(--line-soft);
+    font-size:13px;
+  }
+  .exergy-row:last-child{border-bottom:none;}
+  .exergy-row .k{color:var(--text-muted);}
+  .exergy-row .v{font-family:var(--font-mono); font-weight:600;}
+
+  /* ---------- CALCULATORS ---------- */
+  .calc-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  @media (max-width:880px){ .calc-grid{grid-template-columns:1fr;} }
+  .calc-card{
+    background:var(--bg-panel);
+    border:1px solid var(--line-soft);
+    border-radius:var(--radius-lg);
+    padding:22px;
+  }
+  .calc-card .eyebrow{margin-bottom:2px;}
+  .calc-formula{
+    font-family:var(--font-mono);
+    font-size:13px;
+    background:var(--bg-panel-2);
+    border:1px solid var(--line-soft);
+    border-radius:8px;
+    padding:10px 12px;
+    margin:10px 0 16px;
+    color:var(--acoustic);
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+  .calc-row{display:flex; gap:10px; margin-bottom:10px; align-items:flex-end;}
+  .calc-field{flex:1;}
+  .calc-field label{
+    display:block; font-size:11.5px; color:var(--text-muted); margin-bottom:5px;
+  }
+  .calc-field input[type=number]{
+    width:100%;
+    background:var(--bg-panel-2);
+    border:1px solid var(--line);
+    border-radius:6px;
+    color:var(--text);
+    font-family:var(--font-mono);
+    font-size:13px;
+    padding:8px 10px;
+  }
+  .calc-result{
+    margin-top:14px;
+    padding:14px 16px;
+    border-radius:8px;
+    background:rgba(49,201,176,0.08);
+    border:1px solid rgba(49,201,176,0.3);
+    font-family:var(--font-mono);
+    font-size:15px;
+    color:var(--acoustic);
+  }
+  .calc-result .rlabel{display:block; font-size:11px; color:var(--text-muted); font-family:var(--font-body); margin-bottom:4px;}
+  .calc-note{font-size:11px; color:var(--text-faint); margin-top:10px; line-height:1.5;}
+  .badge-illustrative{
+    display:inline-block; font-size:10px; font-family:var(--font-mono);
+    color:var(--thermal); border:1px solid rgba(242,163,65,0.4);
+    background:rgba(242,163,65,0.08); padding:2px 7px; border-radius:5px;
+    margin-left:8px; vertical-align:middle;
+  }
+
+  /* ---------- ASSUMPTIONS ---------- */
+  .assumptions ul{
+    columns:2; column-gap:32px;
+    padding-left:18px; margin:0;
+    font-size:13.5px; color:var(--text-muted);
+  }
+  @media (max-width:700px){ .assumptions ul{columns:1;} }
+  .assumptions li{margin-bottom:12px; break-inside:avoid;}
+  .assumptions li b{color:var(--text);}
+
+  footer{
+    max-width:1180px; margin:0 auto; padding:32px 24px 60px;
+    color:var(--text-faint); font-size:12px; line-height:1.7;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <p class="eyebrow">UNMSM · Facultad de Química e Ingeniería Química · Termodinámica</p>
+        <h1>Simulador del baño de cavitación ultrasónica</h1>
+        <p class="lead">Pretratamiento de cebolla morada en solución hidroalcohólica (VC‑1). Observa en vivo cómo la potencia eléctrica del ultrasonido se convierte en calor, cómo trabaja el sistema frigorífico para sostener la temperatura, y cuánta entropía y exergía se generan en el proceso.</p>
+
+        <div id="statusBadge" class="status-badge">
+          <span class="status-dot"></span>
+          <span id="statusText">Listo para iniciar</span>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="stat-value" id="heroTemp">20.0<small>°C</small></span>
+            <span class="stat-label">Temperatura del baño</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="heroPower">0<small>W</small></span>
+            <span class="stat-label">Potencia eléctrica W̊us</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="heroTime">00:00<small>/ 00:00</small></span>
+            <span class="stat-label">Tiempo de tratamiento</span>
+          </div>
+        </div>
+
+        <div class="hero-controls">
+          <button id="btnPlay" class="btn btn-primary">▶ Iniciar simulación</button>
+          <button id="btnReset" class="btn btn-ghost">↺ Reiniciar</button>
+          <label class="speed-label">Velocidad
+            <select id="speedSelect">
+              <option value="1">1×</option>
+              <option value="2" selected>2×</option>
+              <option value="4">4×</option>
+              <option value="8">8×</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="tank-wrap">
+          <svg id="tankSvg" viewBox="0 0 280 320" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="liquidGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop id="liquidStopTop" offset="0%" stop-color="#4d9de0"/>
+                <stop id="liquidStopBottom" offset="100%" stop-color="#2c5c82"/>
+              </linearGradient>
+              <clipPath id="tankClip">
+                <rect x="26" y="46" width="228" height="216" rx="10"/>
+              </clipPath>
+            </defs>
+
+            <!-- Tank shell -->
+            <rect x="22" y="42" width="236" height="224" rx="14" fill="#1a1526" stroke="#332a45" stroke-width="2"/>
+            <!-- Liquid -->
+            <g clip-path="url(#tankClip)">
+              <rect id="liquidRect" x="26" y="120" width="228" height="142" fill="url(#liquidGrad)"/>
+              <!-- Onion disc samples -->
+              <ellipse cx="95" cy="200" rx="20" ry="8" fill="#7d2f66" opacity="0.85"/>
+              <ellipse cx="150" cy="215" rx="20" ry="8" fill="#8e3670" opacity="0.85"/>
+              <ellipse cx="185" cy="190" rx="18" ry="7" fill="#7d2f66" opacity="0.8"/>
+              <!-- Bubbles group, populated by JS -->
+              <g id="bubbleGroup"></g>
+            </g>
+            <!-- Transducers -->
+            <rect x="26" y="258" width="228" height="8" fill="#2a2338"/>
+            <circle cx="65" cy="262" r="4" fill="#31c9b0"/>
+            <circle cx="115" cy="262" r="4" fill="#31c9b0"/>
+            <circle cx="165" cy="262" r="4" fill="#31c9b0"/>
+            <circle cx="215" cy="262" r="4" fill="#31c9b0"/>
+
+            <!-- Thermometer -->
+            <rect x="238" y="56" width="8" height="130" rx="4" fill="#251e35" stroke="#332a45"/>
+            <rect id="thermoFill" x="240" y="150" width="4" height="34" rx="2" fill="#f2a341"/>
+            <circle cx="242" cy="192" r="9" fill="#1a1526" stroke="#332a45" stroke-width="2"/>
+            <circle id="thermoBulb" cx="242" cy="192" r="5.5" fill="#f2a341"/>
+
+            <!-- Cooling coil (visible when active) -->
+            <path id="coolCoil" d="M34 60 q8 -6 16 0 q8 6 16 0 q8 -6 16 0 q8 6 16 0 q8 -6 16 0 q8 6 16 0 q8 -6 16 0"
+                  fill="none" stroke="#4d9de0" stroke-width="3" stroke-linecap="round" opacity="0.15"/>
+
+            <text x="30" y="30" font-family="IBM Plex Mono, monospace" font-size="11" fill="#a89bbe" letter-spacing="1">VC-1 · BAÑO ULTRASÓNICO</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- PARÁMETROS -->
+  <section class="panel" id="params">
+    <div class="panel-head">
+      <h2><span class="vc-tag">Entradas</span>Condiciones de operación</h2>
+      <p class="panel-desc">Ajusta las variables del proceso: se recalculan de inmediato la potencia eléctrica, el balance de energía y la simulación en curso.</p>
+    </div>
+
+    <div class="param-groups">
+      <div class="card acoustic-card">
+        <h3><span class="dot acoustic"></span>Ultrasonido</h3>
+        <div class="field">
+          <div class="field-top"><span class="field-label">Densidad de potencia (P<sub>density</sub>)</span><span class="field-value" id="val-Pdensity">—</span></div>
+          <input type="range" id="in-Pdensity" min="20" max="150" step="1" value="80">
+          <div class="field-note">Referencia del documento: 80 W/L.</div>
+        </div>
+        <div class="field">
+          <div class="field-top"><span class="field-label">Volumen del baño (V<sub>baño</sub>)</span><span class="field-value" id="val-Vbano">—</span></div>
+          <input type="range" id="in-Vbano" min="1" max="20" step="0.5" value="5">
+        </div>
+        <div class="field">
+          <div class="field-top"><span class="field-label">Eficiencia de transducción (η<sub>trans</sub>)</span><span class="field-value" id="val-etaTrans">—</span></div>
+          <input type="range" id="in-etaTrans" min="0.3" max="0.9" step="0.01" value="0.6">
+          <div class="field-note">Supuesto del documento (4.5.3): 0.60.</div>
+        </div>
+        <div class="field">
+          <div class="field-top"><span class="field-label">Tiempo de tratamiento (t<sub>US</sub>)</span><span class="field-value" id="val-tUS">—</span></div>
+          <input type="range" id="in-tUS" min="2" max="30" step="1" value="15">
+        </div>
+      </div>
+
+      <div class="card mass-card">
+        <h3><span class="dot mass"></span>Masas y solución</h3>
+        <div class="field">
+          <div class="field-top"><span class="field-label">Masa de solución (m<sub>sol</sub>)</span><span class="field-value" id="val-msol">—</span></div>
+          <input type="range" id="in-msol" min="0.5" max="10" step="0.1" value="4">
+        </div>
+        <div class="field">
+          <div class="field-top"><span class="field-label">Masa de cebolla (m<sub>cebolla</sub>)</span><span class="field-value" id="val-mcebolla">—</span></div>
+          <input type="range" id="in-mcebolla" min="0.1" max="3" step="0.05" value="0.5">
+        </div>
+        <div class="field">
+          <div class="field-top"><span class="field-label">Concentración de etanol</span><span class="field-value" id="val-etOH">—</span></div>
+          <input type="range" id="in-etOH" min="0" max="50" step="1" value="20">
+          <div class="field-note">Cp<sub>sol</sub> calculado por mezcla lineal agua–etanol: <span id="val-Cpsol" style="color:var(--text)">—</span></div>
+        </div>
+        <div class="field">
+          <div class="field-top"><span class="field-label">Cp de la cebolla (Cp<sub>cebolla</sub>)</span><span class="field-value" id="val-Cpcebolla">—</span></div>
+          <input type="range" id="in-Cpcebolla" min="3000" max="4000" step="10" value="3800">
+        </div>
+      </div>
+
+      <div class="card thermal-card">
+        <h3><span class="dot thermal"></span>Térmico y ambiente</h3>
+        <div class="field">
+          <div class="field-top"><span class="field-label">Temperatura ambiente / T₀</span><span class="field-value" id="val-T0">—</span></div>
+          <input type="range" id="in-T0" min="10" max="30" step="0.5" value="20">
+        </div>
+        <div class="field">
+          <div class="field-top"><span class="field-label">Consigna del baño (T<sub>set</sub>)</span><span class="field-value" id="val-Tset">—</span></div>
+          <input type="range" id="in-Tset" min="30" max="60" step="1" value="50">
+          <div class="field-note">Referencia del documento: 50 °C (323.15 K).</div>
+        </div>
+        <div class="field">
+          <div class="field-top"><span class="field-label">Pérdidas al ambiente (UA)</span><span class="field-value" id="val-UA">—</span></div>
+          <input type="range" id="in-UA" min="1" max="20" step="0.5" value="5">
+        </div>
+        <div class="field">
+          <div class="field-top"><span class="field-label">Capacidad de refrigeración máx.</span><span class="field-value" id="val-QrefMax">—</span></div>
+          <input type="range" id="in-QrefMax" min="100" max="1000" step="10" value="500">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHARTS -->
+  <section class="panel" id="chartsSection">
+    <div class="panel-head">
+      <h2><span class="vc-tag">VC-1</span>Evolución temporal</h2>
+      <p class="panel-desc">Integración explícita de la Primera Ley (dt = 1 s simulado) sobre el volumen de control del baño ultrasónico.</p>
+    </div>
+    <div class="chart-row">
+      <div class="chart-card">
+        <h3>Temperatura del baño</h3>
+        <canvas id="chartTemp"></canvas>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-swatch" style="background:#f2a341"></span>T<sub>baño</sub> (°C)</span>
+          <span class="legend-item"><span class="legend-swatch dashed"></span>Consigna T<sub>set</sub></span>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Flujos de calor</h3>
+        <canvas id="chartPower"></canvas>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-swatch" style="background:#31c9b0"></span>W<sub>us</sub> eléctrica</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#4d9de0"></span>Q<sub>retirada</sub></span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#c93f95"></span>Q<sub>pérdidas</sub></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- READOUTS -->
+  <section class="panel" id="readouts">
+    <div class="panel-head">
+      <h2><span class="vc-tag">Balance</span>Lecturas en tiempo real</h2>
+    </div>
+    <div class="readout-grid">
+      <div class="readout c-acoustic">
+        <div class="readout-label">Potencia eléctrica suministrada</div>
+        <div class="readout-value" id="ro-Wus">0<small>W</small></div>
+        <div class="readout-formula">Wus = P<sub>density</sub>·V<sub>baño</sub> / η<sub>trans</sub></div>
+      </div>
+      <div class="readout c-cool">
+        <div class="readout-label">Calor retirado (sist. frigorífico)</div>
+        <div class="readout-value" id="ro-Qret">0<small>W</small></div>
+        <div class="readout-formula">Controlador: Q = sat(Kp·(T−T<sub>set</sub>))</div>
+      </div>
+      <div class="readout c-onion">
+        <div class="readout-label">Pérdidas al ambiente</div>
+        <div class="readout-value" id="ro-Qperd">0<small>W</small></div>
+        <div class="readout-formula">Q<sub>pérdidas</sub> = UA·(T<sub>baño</sub>−T₀)</div>
+      </div>
+      <div class="readout c-thermal">
+        <div class="readout-label">Generación de entropía</div>
+        <div class="readout-value" id="ro-Sgen">0<small>W/K</small></div>
+        <div class="readout-formula">Ṡgen = Q̇ret/T + Q̇pérd/T₀ + (m·Cp)·dT/dt / T</div>
+      </div>
+      <div class="readout c-thermal">
+        <div class="readout-label">Destrucción de exergía</div>
+        <div class="readout-value" id="ro-Xdest">0<small>W</small></div>
+        <div class="readout-formula">Ẋdest = T₀·Ṡgen  (Gouy–Stodola)</div>
+      </div>
+      <div class="readout c-cool">
+        <div class="readout-label">Eficiencia exergética</div>
+        <div class="readout-value" id="ro-etaEx">0<small>%</small></div>
+        <div class="readout-formula">ηex = Ex<sub>Q,retirada</sub> / Wus</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRIMERA LEY -->
+  <section class="panel" id="firstlaw">
+    <div class="panel-head">
+      <h2><span class="vc-tag">1ª Ley</span>Reparto de la energía eléctrica</h2>
+      <p class="panel-desc">De toda la potencia eléctrica que entra al transductor, esto es lo que ocurre con ella en este instante de la simulación.</p>
+    </div>
+    <div class="flow-bar" id="flowBar"></div>
+    <ul class="flow-legend" id="flowLegend"></ul>
+    <div class="interpretation" id="firstLawText"></div>
+  </section>
+
+  <!-- SEGUNDA LEY -->
+  <section class="panel" id="secondlaw">
+    <div class="panel-head">
+      <h2><span class="vc-tag">2ª Ley</span>Irreversibilidades y exergía</h2>
+      <p class="panel-desc">Fuentes de generación de entropía identificadas en el VC‑1 (sección 5.1 del documento fuente).</p>
+    </div>
+    <div class="twocol">
+      <ul class="irrev-list">
+        <li><b>Disipación acústica y fricción viscosa</b>La potencia eléctrica se convierte en vibración; la fricción interna de la solución agua–etanol degrada esa energía mecánica de alta calidad en calor a baja temperatura.</li>
+        <li><b>Implosión inelástica de microburbujas</b>El colapso de las cavidades genera picos locales extremos de presión y temperatura que se disipan de forma irreversible en el fluido.</li>
+        <li><b>Transferencia de calor con ΔT finito</b>Calor fluyendo del baño caliente hacia la cebolla fría, hacia el evaporador de refrigeración y hacia el ambiente, todo a diferencias de temperatura finitas.</li>
+        <li><b>Mezclado irreversible y difusión de solutos</b>Migración de agua, etanol y solutos lixiviados (quercetina, compuestos azufrados) impulsada por gradientes de concentración.</li>
+      </ul>
+      <div class="exergy-summary">
+        <div class="exergy-row"><span class="k">Exergía de entrada (Wus)</span><span class="v" id="ex-in">—</span></div>
+        <div class="exergy-row"><span class="k">Exergía del calor recuperado</span><span class="v" id="ex-q">—</span></div>
+        <div class="exergy-row"><span class="k">Exergía destruida (Ẋdest)</span><span class="v" id="ex-dest">—</span></div>
+        <div class="exergy-row"><span class="k">Eficiencia exergética</span><span class="v" id="ex-eff">—</span></div>
+        <div class="exergy-row"><span class="k">Entropía generada acumulada</span><span class="v" id="ex-sgen-acc">—</span></div>
+        <div class="exergy-row"><span class="k">Exergía destruida acumulada</span><span class="v" id="ex-xdest-acc">—</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALCULADORAS -->
+  <section class="panel" id="calculators">
+    <div class="panel-head">
+      <h2><span class="vc-tag">Herramientas</span>Calculadoras complementarias</h2>
+      <p class="panel-desc">Ecuaciones 6.2.d y 6.2.e del documento — independientes de la simulación en tiempo real.</p>
+    </div>
+    <div class="calc-grid">
+      <div class="calc-card">
+        <p class="eyebrow">Modelo de Fick</p>
+        <h3>Difusividad efectiva de humedad</h3>
+        <div class="calc-formula">Deff = −(L² / π²·t<sub>secado</sub>) · ln(MR·π²/8)</div>
+        <div class="calc-row">
+          <div class="calc-field"><label>Semiespesor L (m)</label><input type="number" id="deff-L" value="0.001" step="0.0001"></div>
+          <div class="calc-field"><label>Tiempo de secado (s)</label><input type="number" id="deff-t" value="3600" step="60"></div>
+          <div class="calc-field"><label>Razón de humedad MR (0–1)</label><input type="number" id="deff-MR" value="0.2" step="0.01" min="0.001" max="0.999"></div>
+        </div>
+        <div class="calc-result"><span class="rlabel">Difusividad efectiva D<sub>eff</sub></span><span id="deff-result">—</span></div>
+        <p class="calc-note">MR = (X − X<sub>eq</sub>)/(X₀ − X<sub>eq</sub>), razón de humedad adimensional. Valores típicos en secado de vegetales: 10⁻¹¹ – 10⁻⁹ m²/s.</p>
+      </div>
+
+      <div class="calc-card">
+        <p class="eyebrow">Calidad del producto</p>
+        <h3>Retención de bioactivos (R<sub>i</sub>)</h3>
+        <div class="calc-formula">Ri = (Ci,final / Ci,inicial) × 100</div>
+        <div class="calc-row">
+          <div class="calc-field"><label>Concentración inicial (mg/100g bs)</label><input type="number" id="ri-ini" value="60" step="0.1"></div>
+          <div class="calc-field"><label>Concentración final (mg/100g bs)</label><input type="number" id="ri-fin" value="45" step="0.1"></div>
+        </div>
+        <div class="calc-result"><span class="rlabel">Retención R<sub>i</sub></span><span id="ri-result">—</span></div>
+
+        <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--line-soft);">
+          <p class="eyebrow">Estimador cualitativo<span class="badge-illustrative">ilustrativo, no forma parte del modelo del documento</span></p>
+          <div class="calc-row">
+            <div class="calc-field"><label>Sensibilidad térmica (k, %/°C·min)</label><input type="number" id="ri-k" value="0.03" step="0.005"></div>
+          </div>
+          <div class="calc-result" style="background:rgba(242,163,65,0.08); border-color:rgba(242,163,65,0.3); color:var(--thermal);">
+            <span class="rlabel">Retención estimada según la corrida actual del simulador</span><span id="ri-estimate">—</span>
+          </div>
+          <p class="calc-note">Heurística simple R ≈ 100 − k·(T<sub>media</sub>−40°C)·t<sub>min</sub>, solo para ilustrar la tendencia cualitativa descrita en el documento (a mayor tiempo y temperatura, mayor degradación de quercetina y compuestos azufrados). No sustituye datos cinéticos experimentales.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUPUESTOS -->
+  <section class="panel assumptions" id="assumptions">
+    <div class="panel-head">
+      <h2><span class="vc-tag">Supuestos</span>Validez del modelo</h2>
+    </div>
+    <ul>
+      <li><b>Estado cuasi-estático.</b> Tras el transitorio inicial, el sistema opera bajo control térmico continuo (dE<sub>VC</sub>/dt → 0 en el largo plazo).</li>
+      <li><b>Mezclado perfecto.</b> La agitación por cavitación acústica homogeniza temperatura y concentración: T<sub>solución</sub> = T<sub>cebolla</sub> = T<sub>baño</sub>.</li>
+      <li><b>Eficiencia de transducción fija.</b> η<sub>trans</sub> se mantiene constante durante todo el tratamiento (valor por defecto: 0.60).</li>
+      <li><b>Propiedades constantes.</b> Densidad y capacidad calorífica de la mezcla agua–etanol constantes entre 20 °C y 50 °C.</li>
+      <li><b>Energía cinética y potencial despreciables</b> frente a los términos térmicos y de trabajo eléctrico.</li>
+      <li><b>Estado muerto de referencia:</b> T₀ = 293.15 K (20 °C), P₀ = 101.325 kPa.</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  <p>Simulador educativo construido sobre el modelo matemático de la sección 6 del trabajo "Análisis termodinámico del proceso de cavitación ultrasónica y transferencia de energía en el pretratamiento de cebolla morada (Allium cepa)" — Curso de Termodinámica, Escuela Profesional de Ingeniería Agroindustrial, UNMSM. Los valores por defecto de masa, volumen y coeficientes de pérdida son parámetros de laboratorio ilustrativos ajustables; los definidos explícitamente en el documento (P<sub>density</sub> = 80 W/L, η<sub>trans</sub> = 0.60, T<sub>set</sub> = 50 °C, T₀ = 20 °C) se usan como valores iniciales. Todas las magnitudes se calculan en Kelvin internamente y se muestran en °C por legibilidad.</p>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ================== FÍSICA ================== */
+  function cToK(c){ return c + 273.15; }
+
+  function cpSolucion(etOHpercent){
+    const cpAgua = 4186, cpEtOH = 2440;
+    const x = Math.max(0, Math.min(1, etOHpercent/100));
+    return cpAgua*(1-x) + cpEtOH*x;
+  }
+
+  function computeWus(Pdensity, Vbano, etaTrans){
+    const Wac = Pdensity * Vbano;
+    const Wus = Wac / etaTrans;
+    const Qdisip_transductor = (1-etaTrans) * Wus;
+    return {Wac, Wus, Qdisip_transductor};
+  }
+
+  function stepPhysics(state, p, dt){
+    const {Wus} = computeWus(p.Pdensity, p.Vbano, p.etaTrans);
+    const T0K = cToK(p.T0);
+    const TbanoK = cToK(state.Tbano);
+
+    const raw = p.Kp * (state.Tbano - p.Tset);
+    const Qretirada = Math.max(0, Math.min(p.QrefMax, raw));
+    const Qperdidas = p.UA * (state.Tbano - p.T0);
+
+    const Ctot = p.msol*p.Cpsol + p.mcebolla*p.Cpcebolla;
+    const dTdt = (Wus - Qretirada - Qperdidas) / Ctot;
+    const TbanoNew = state.Tbano + dTdt*dt;
+    const TbanoNewK = cToK(TbanoNew);
+
+    const SgenRaw = (Qretirada/TbanoK) + (Qperdidas/T0K) + (Ctot*dTdt)/TbanoK;
+    const Sgen = Math.max(0, SgenRaw);
+    const Xdest = T0K * Sgen;
+    const ExQretirada = Qretirada * (1 - T0K/TbanoK);
+    const etaEx = Wus>0 ? Math.max(0, ExQretirada/Wus) : 0;
+
+    return {
+      t: state.t + dt, Tbano: TbanoNew, Wus, Qretirada, Qperdidas,
+      Sgen, Xdest, etaEx, ExQretirada, dTdt, Qdisip_transductor: computeWus(p.Pdensity,p.Vbano,p.etaTrans).Qdisip_transductor
+    };
+  }
+
+  function fickDeff(L, tSecado, MR){
+    if (tSecado<=0 || MR<=0 || MR>=1) return null;
+    return -((L*L)/(Math.PI*Math.PI*tSecado)) * Math.log((MR*Math.PI*Math.PI)/8);
+  }
+  function retencion(Cf, Ci){ if(Ci<=0) return null; return (Cf/Ci)*100; }
+
+  /* ================== ESTADO DE LA APP ================== */
+  const els = {};
+  ["Pdensity","Vbano","etaTrans","tUS","msol","mcebolla","etOH","Cpcebolla","T0","Tset","UA","QrefMax"].forEach(k=>{
+    els[k] = document.getElementById("in-"+k);
+  });
+
+  function readParams(){
+    return {
+      Pdensity: parseFloat(els.Pdensity.value),
+      Vbano: parseFloat(els.Vbano.value),
+      etaTrans: parseFloat(els.etaTrans.value),
+      tUS: parseFloat(els.tUS.value),
+      msol: parseFloat(els.msol.value),
+      mcebolla: parseFloat(els.mcebolla.value),
+      etOH: parseFloat(els.etOH.value),
+      Cpsol: cpSolucion(parseFloat(els.etOH.value)),
+      Cpcebolla: parseFloat(els.Cpcebolla.value),
+      T0: parseFloat(els.T0.value),
+      Tset: parseFloat(els.Tset.value),
+      UA: parseFloat(els.UA.value),
+      QrefMax: parseFloat(els.QrefMax.value),
+      Kp: 250
+    };
+  }
+
+  let params = readParams();
+  let simState = { t:0, Tbano: params.T0 };
+  let running = false;
+  let finished = false;
+  let speed = 2;
+  let history = [];
+  let accSgen = 0, accXdest = 0, accEelec = 0, tempSum = 0, tempCount = 0;
+  let rafId = null, lastTs = null, accumulator = 0;
+  const DT = 1; // segundo simulado por paso físico
+
+  function resetSim(){
+    params = readParams();
+    simState = { t:0, Tbano: params.T0 };
+    running = false; finished = false;
+    history = [];
+    accSgen=0; accXdest=0; accEelec=0; tempSum=0; tempCount=0;
+    lastTs = null; accumulator = 0;
+    document.getElementById("btnPlay").textContent = "▶ Iniciar simulación";
+    pushHistory(stepZero());
+    render();
+    setStatus("idle");
+  }
+
+  function stepZero(){
+    const {Wus} = computeWus(params.Pdensity, params.Vbano, params.etaTrans);
+    return { t:0, Tbano: params.Tbano_init !== undefined ? params.Tbano_init : simState.Tbano,
+      Wus, Qretirada:0, Qperdidas:0, Sgen:0, Xdest:0, etaEx:0, ExQretirada:0, dTdt:0,
+      Qdisip_transductor: computeWus(params.Pdensity, params.Vbano, params.etaTrans).Qdisip_transductor };
+  }
+
+  function pushHistory(rec){
+    history.push(rec);
+    if (history.length > 3600) history.shift();
+  }
+
+  function tick(){
+    if (!running || finished) return;
+    params = readParams(); // permitir ajustes en vivo
+    const rec = stepPhysics(simState, params, DT);
+    simState = { t: rec.t, Tbano: rec.Tbano };
+    pushHistory(rec);
+
+    accSgen += rec.Sgen * DT;
+    accXdest += rec.Xdest * DT;
+    accEelec += rec.Wus * DT;
+    tempSum += rec.Tbano; tempCount++;
+
+    if (rec.t >= params.tUS*60){
+      finished = true;
+      running = false;
+      document.getElementById("btnPlay").textContent = "▶ Iniciar simulación";
+      setStatus("done");
+    }
+    render();
+  }
+
+  function loop(ts){
+    if (!running){ rafId = null; return; }
+    if (lastTs === null) lastTs = ts;
+    const realDt = (ts - lastTs)/1000;
+    lastTs = ts;
+    accumulator += realDt * speed;
+    let steps = 0;
+    while (accumulator >= DT && steps < 200){
+      tick();
+      accumulator -= DT;
+      steps++;
+      if (finished) break;
+    }
+    if (running && !finished) rafId = requestAnimationFrame(loop);
+    else rafId = null;
+  }
+
+  function setStatus(mode){
+    const badge = document.getElementById("statusBadge");
+    const text = document.getElementById("statusText");
+    badge.classList.remove("running","steady","done");
+    if (mode==="idle"){ text.textContent = "Listo para iniciar"; }
+    else if (mode==="running"){ badge.classList.add("running"); text.textContent = "Calentamiento transitorio"; }
+    else if (mode==="steady"){ badge.classList.add("steady"); text.textContent = "Estado estacionario controlado"; }
+    else if (mode==="done"){ badge.classList.add("done"); text.textContent = "Tratamiento completado"; }
+  }
+
+  /* ================== RENDER ================== */
+  function fmt(v, d){ return Number(v).toLocaleString('es-PE', {minimumFractionDigits:d, maximumFractionDigits:d}); }
+
+  function updateParamLabels(){
+    document.getElementById("val-Pdensity").innerHTML = els.Pdensity.value + '<span class="unit">W/L</span>';
+    document.getElementById("val-Vbano").innerHTML = els.Vbano.value + '<span class="unit">L</span>';
+    document.getElementById("val-etaTrans").innerHTML = els.etaTrans.value;
+    document.getElementById("val-tUS").innerHTML = els.tUS.value + '<span class="unit">min</span>';
+    document.getElementById("val-msol").innerHTML = els.msol.value + '<span class="unit">kg</span>';
+    document.getElementById("val-mcebolla").innerHTML = els.mcebolla.value + '<span class="unit">kg</span>';
+    document.getElementById("val-etOH").innerHTML = els.etOH.value + '<span class="unit">%v/v</span>';
+    document.getElementById("val-Cpsol").textContent = Math.round(cpSolucion(parseFloat(els.etOH.value))) + " J/kg·K";
+    document.getElementById("val-Cpcebolla").innerHTML = els.Cpcebolla.value + '<span class="unit">J/kg·K</span>';
+    document.getElementById("val-T0").innerHTML = els.T0.value + '<span class="unit">°C</span>';
+    document.getElementById("val-Tset").innerHTML = els.Tset.value + '<span class="unit">°C</span>';
+    document.getElementById("val-UA").innerHTML = els.UA.value + '<span class="unit">W/K</span>';
+    document.getElementById("val-QrefMax").innerHTML = els.QrefMax.value + '<span class="unit">W</span>';
+  }
+
+  function render(){
+    const rec = history[history.length-1];
+    if (!rec) return;
+
+    // Hero stats
+    document.getElementById("heroTemp").innerHTML = fmt(rec.Tbano,1) + "<small>°C</small>";
+    document.getElementById("heroPower").innerHTML = Math.round(rec.Wus) + "<small>W</small>";
+    const tSec = rec.t;
+    const totalSec = params.tUS*60;
+    document.getElementById("heroTime").innerHTML = mmss(tSec) + "<small>/ " + mmss(totalSec) + "</small>";
+
+    // Readouts
+    document.getElementById("ro-Wus").innerHTML = Math.round(rec.Wus) + "<small>W</small>";
+    document.getElementById("ro-Qret").innerHTML = Math.round(rec.Qretirada) + "<small>W</small>";
+    document.getElementById("ro-Qperd").innerHTML = fmt(rec.Qperdidas,1) + "<small>W</small>";
+    document.getElementById("ro-Sgen").innerHTML = fmt(rec.Sgen,3) + "<small>W/K</small>";
+    document.getElementById("ro-Xdest").innerHTML = fmt(rec.Xdest,1) + "<small>W</small>";
+    document.getElementById("ro-etaEx").innerHTML = fmt(rec.etaEx*100,1) + "<small>%</small>";
+
+    // First law flow bar
+    renderFlowBar(rec);
+
+    // Second law summary
+    const T0K = cToK(params.T0);
+    document.getElementById("ex-in").textContent = Math.round(rec.Wus) + " W";
+    document.getElementById("ex-q").textContent = fmt(rec.ExQretirada,1) + " W";
+    document.getElementById("ex-dest").textContent = fmt(rec.Xdest,1) + " W";
+    document.getElementById("ex-eff").textContent = fmt(rec.etaEx*100,1) + " %";
+    document.getElementById("ex-sgen-acc").textContent = fmt(accSgen/1000,3) + " kJ/K";
+    document.getElementById("ex-xdest-acc").textContent = fmt(accXdest/1000,2) + " kJ";
+
+    // Tank visual
+    renderTank(rec);
+
+    // Status
+    if (running && !finished){
+      if (Math.abs(rec.dTdt) < 0.003 && rec.t > 30) setStatus("steady");
+      else setStatus("running");
+    }
+
+    // Charts (throttled)
+    drawCharts();
+
+    // Retention estimate (linked to current run)
+    updateRetentionEstimate(rec);
+  }
+
+  function mmss(totalSeconds){
+    const m = Math.floor(totalSeconds/60);
+    const s = Math.floor(totalSeconds%60);
+    return String(m).padStart(2,'0')+":"+String(s).padStart(2,'0');
+  }
+
+  function renderFlowBar(rec){
+    const Wus = rec.Wus || 1;
+    const segs = [
+      {label:"Pérdidas de transducción", value: rec.Qdisip_transductor, color:"var(--onion-soft)"},
+      {label:"Calor retirado (refrigeración)", value: rec.Qretirada, color:"var(--cool)"},
+      {label:"Pérdidas al ambiente", value: rec.Qperdidas, color:"var(--onion)"},
+    ];
+    const acumulado = Math.max(0, Wus - rec.Qdisip_transductor - rec.Qretirada - rec.Qperdidas);
+    segs.push({label:"Acumulación en el baño (dT/dt)", value: acumulado, color:"var(--thermal)"});
+
+    const bar = document.getElementById("flowBar");
+    bar.innerHTML = "";
+    segs.forEach(s=>{
+      const pct = Math.max(0, (s.value/Wus)*100);
+      const div = document.createElement("div");
+      div.className = "flow-seg";
+      div.style.width = pct + "%";
+      div.style.background = s.color;
+      bar.appendChild(div);
+    });
+
+    const legend = document.getElementById("flowLegend");
+    legend.innerHTML = "";
+    segs.forEach(s=>{
+      const li = document.createElement("li");
+      li.innerHTML = '<span class="sw" style="background:'+s.color+'"></span>' + s.label + ' <span class="amt">' + Math.round(s.value) + ' W</span>';
+      legend.appendChild(li);
+    });
+
+    const txt = document.getElementById("firstLawText");
+    const pctDisip = Math.round((rec.Qdisip_transductor/Wus)*100);
+    const pctUtil = Math.round((rec.Qretirada/Wus)*100);
+    txt.innerHTML = "En este instante, de los <strong>"+Math.round(Wus)+" W</strong> eléctricos suministrados, aproximadamente <strong>"+pctDisip+"%</strong> se pierde de inmediato en la conversión electroacústica del transductor, y la energía acústica restante se atenúa casi por completo como calor dentro del líquido — tal como describe el documento fuente. El sistema frigorífico está recuperando actualmente el <strong>"+pctUtil+"%</strong> de la potencia eléctrica como calor útil aprovechable para el secador.";
+  }
+
+  /* ---------- TANK VISUAL ---------- */
+  let bubblesInit = false;
+  function initBubbles(){
+    const g = document.getElementById("bubbleGroup");
+    g.innerHTML = "";
+    const n = 22;
+    for (let i=0;i<n;i++){
+      const c = document.createElementNS("http://www.w3.org/2000/svg","circle");
+      const cx = 34 + Math.random()*192;
+      const r = 1.5 + Math.random()*2.5;
+      c.setAttribute("cx", cx);
+      c.setAttribute("cy", 260 - Math.random()*10);
+      c.setAttribute("r", r);
+      c.setAttribute("fill", "#eaf9f6");
+      c.setAttribute("opacity", "0.75");
+      const dur = (1.2 + Math.random()*1.6).toFixed(2);
+      const delay = (Math.random()*2).toFixed(2);
+      c.style.animation = "none";
+      c.dataset.baseCx = cx;
+      c.dataset.dur = dur;
+      c.dataset.delay = delay;
+      c.dataset.phase = Math.random()*Math.PI*2;
+      g.appendChild(c);
+    }
+    bubblesInit = true;
+  }
+
+  let bubbleAnimT = 0;
+  function animateBubbles(intensity){
+    if (!bubblesInit) initBubbles();
+    const g = document.getElementById("bubbleGroup");
+    bubbleAnimT += 0.02 * (0.3 + intensity*1.7);
+    const kids = g.children;
+    for (let i=0;i<kids.length;i++){
+      const c = kids[i];
+      const dur = parseFloat(c.dataset.dur);
+      const phase = parseFloat(c.dataset.phase);
+      const speedFactor = 0.3 + intensity*1.4;
+      const localT = (bubbleAnimT/dur + phase) % 1;
+      const yTop = 128, yBottom = 258;
+      const y = yBottom - localT*(yBottom-yTop);
+      const wobble = Math.sin((bubbleAnimT*4)+phase)*3*intensity;
+      c.setAttribute("cy", y);
+      c.setAttribute("cx", parseFloat(c.dataset.baseCx) + wobble);
+      c.setAttribute("opacity", (0.85*(1-localT*0.6)).toFixed(2) * (0.4+intensity*0.6));
+    }
+  }
+
+  function renderTank(rec){
+    // liquid level rises slightly with volume param but mostly static; color reflects temperature
+    const T0 = params.T0, Tset = params.Tset;
+    const frac = Math.max(0, Math.min(1, (rec.Tbano - T0) / Math.max(1,(Tset - T0))));
+    // interpolate liquid colors: cool blue -> warm amber
+    const coolTop = [77,157,224], warmTop = [242,163,65];
+    const coolBot = [44,92,130], warmBot = [138,92,37];
+    const lerp = (a,b,t)=> Math.round(a+(b-a)*t);
+    const top = [lerp(coolTop[0],warmTop[0],frac), lerp(coolTop[1],warmTop[1],frac), lerp(coolTop[2],warmTop[2],frac)];
+    const bot = [lerp(coolBot[0],warmBot[0],frac), lerp(coolBot[1],warmBot[1],frac), lerp(coolBot[2],warmBot[2],frac)];
+    document.getElementById("liquidStopTop").setAttribute("stop-color", `rgb(${top.join(',')})`);
+    document.getElementById("liquidStopBottom").setAttribute("stop-color", `rgb(${bot.join(',')})`);
+
+    // thermometer
+    const minY = 66, maxY = 176; // range for 10..65 C roughly
+    const tFrac = Math.max(0, Math.min(1, (rec.Tbano - 10) / (65-10)));
+    const fillY = maxY - tFrac*(maxY-minY);
+    const fill = document.getElementById("thermoFill");
+    fill.setAttribute("y", fillY);
+    fill.setAttribute("height", maxY - fillY + 10);
+    const bulbColor = rec.Tbano > Tset+3 ? "#e2574c" : "#f2a341";
+    document.getElementById("thermoBulb").setAttribute("fill", bulbColor);
+    fill.setAttribute("fill", bulbColor);
+
+    // cooling coil glow
+    const coil = document.getElementById("coolCoil");
+    const coolFrac = params.QrefMax>0 ? rec.Qretirada/params.QrefMax : 0;
+    coil.setAttribute("opacity", (0.15 + coolFrac*0.75).toFixed(2));
+
+    // bubble intensity from acoustic power density relative to reference 80W/L, and running state
+    const intensity = running ? Math.max(0.15, Math.min(1, params.Pdensity/150)) : 0.05;
+    animateBubbles(intensity);
+  }
+
+  /* ---------- CHARTS ---------- */
+  function drawChart(canvas, series, opts){
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = canvas.clientWidth || 400;
+    const cssH = canvas.clientHeight || 220;
+    canvas.width = cssW*dpr; canvas.height = cssH*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,cssW,cssH);
+
+    const mL=40, mR=8, mT=10, mB=22;
+    const w = cssW-mL-mR, h = cssH-mT-mB;
+
+    const xMax = Math.max(opts.xMax, 1);
+    let yMin = opts.yMin, yMax = opts.yMax;
+    if (yMin===undefined || yMax===undefined){
+      let lo=Infinity, hi=-Infinity;
+      series.forEach(s=> s.data.forEach(pt=>{ if(pt.y<lo) lo=pt.y; if(pt.y>hi) hi=pt.y; }));
+      if (!isFinite(lo)){ lo=0; hi=1; }
+      const pad = (hi-lo)*0.15 || 1;
+      yMin = opts.yMin !== undefined ? opts.yMin : lo-pad;
+      yMax = opts.yMax !== undefined ? opts.yMax : hi+pad;
+    }
+    if (yMax-yMin < 1e-6) yMax = yMin+1;
+
+    const xToPx = (x)=> mL + (x/xMax)*w;
+    const yToPx = (y)=> mT + h - ((y-yMin)/(yMax-yMin))*h;
+
+    // gridlines
+    ctx.strokeStyle = "rgba(255,255,255,0.06)";
+    ctx.lineWidth = 1;
+    ctx.font = "10px IBM Plex Mono, monospace";
+    ctx.fillStyle = "#6f6486";
+    const gridN = 4;
+    for (let i=0;i<=gridN;i++){
+      const y = yMin + (yMax-yMin)*i/gridN;
+      const py = yToPx(y);
+      ctx.beginPath(); ctx.moveTo(mL,py); ctx.lineTo(mL+w,py); ctx.stroke();
+      ctx.fillText(Math.round(y), 4, py+3);
+    }
+    // x axis labels (minutes)
+    const xTicks = 4;
+    for (let i=0;i<=xTicks;i++){
+      const x = xMax*i/xTicks;
+      const px = xToPx(x);
+      ctx.fillText((x/60).toFixed(0)+"m", px-8, mT+h+16);
+    }
+
+    // reference dashed lines
+    if (opts.refLines){
+      opts.refLines.forEach(rl=>{
+        const py = yToPx(rl.value);
+        ctx.save();
+        ctx.strokeStyle = rl.color || "rgba(255,255,255,0.3)";
+        ctx.setLineDash([4,4]);
+        ctx.lineWidth = 1.3;
+        ctx.beginPath(); ctx.moveTo(mL,py); ctx.lineTo(mL+w,py); ctx.stroke();
+        ctx.restore();
+      });
+    }
+
+    // series
+    series.forEach(s=>{
+      if (s.data.length < 2) return;
+      ctx.beginPath();
+      ctx.strokeStyle = s.color;
+      ctx.lineWidth = 2;
+      s.data.forEach((pt,i)=>{
+        const px = xToPx(pt.x), py = yToPx(pt.y);
+        if (i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+      });
+      ctx.stroke();
+    });
+  }
+
+  let lastChartDraw = 0;
+  function drawCharts(){
+    const now = performance.now();
+    if (now - lastChartDraw < 80 && running) return; // throttle ~12fps while running
+    lastChartDraw = now;
+
+    const step = Math.max(1, Math.floor(history.length/300));
+    const sampled = [];
+    for (let i=0;i<history.length;i+=step) sampled.push(history[i]);
+    if (sampled[sampled.length-1] !== history[history.length-1]) sampled.push(history[history.length-1]);
+
+    const xMax = Math.max(params.tUS*60, sampled.length?sampled[sampled.length-1].t:60);
+
+    drawChart(document.getElementById("chartTemp"), [
+      {data: sampled.map(r=>({x:r.t,y:r.Tbano})), color:"#f2a341"}
+    ], {
+      xMax, yMin: Math.min(params.T0-2, 10), yMax: Math.max(params.Tset+8, 40),
+      refLines: [{value: params.Tset, color:"rgba(255,255,255,0.4)"}]
+    });
+
+    drawChart(document.getElementById("chartPower"), [
+      {data: sampled.map(r=>({x:r.t,y:r.Wus})), color:"#31c9b0"},
+      {data: sampled.map(r=>({x:r.t,y:r.Qretirada})), color:"#4d9de0"},
+      {data: sampled.map(r=>({x:r.t,y:r.Qperdidas})), color:"#c93f95"}
+    ], { xMax, yMin:0 });
+  }
+
+  /* ---------- CALCULADORAS ---------- */
+  function bindCalculators(){
+    const deffInputs = ["deff-L","deff-t","deff-MR"].map(id=>document.getElementById(id));
+    function updateDeff(){
+      const L = parseFloat(document.getElementById("deff-L").value);
+      const t = parseFloat(document.getElementById("deff-t").value);
+      const MR = parseFloat(document.getElementById("deff-MR").value);
+      const d = fickDeff(L,t,MR);
+      document.getElementById("deff-result").textContent = d===null ? "— valores fuera de rango —" : d.toExponential(3) + " m²/s";
+    }
+    deffInputs.forEach(el=> el.addEventListener("input", updateDeff));
+    updateDeff();
+
+    const riInputs = ["ri-ini","ri-fin"].map(id=>document.getElementById(id));
+    function updateRi(){
+      const ci = parseFloat(document.getElementById("ri-ini").value);
+      const cf = parseFloat(document.getElementById("ri-fin").value);
+      const r = retencion(cf,ci);
+      document.getElementById("ri-result").textContent = r===null ? "— dato inválido —" : r.toFixed(1) + " %";
+    }
+    riInputs.forEach(el=> el.addEventListener("input", updateRi));
+    updateRi();
+
+    document.getElementById("ri-k").addEventListener("input", ()=> updateRetentionEstimate(history[history.length-1]));
+  }
+
+  function updateRetentionEstimate(rec){
+    const out = document.getElementById("ri-estimate");
+    if (!out) return;
+    if (!rec || tempCount===0){ out.textContent = "Inicia la simulación para estimar"; return; }
+    const k = parseFloat(document.getElementById("ri-k").value) || 0;
+    const Tavg = tempSum/tempCount;
+    const tMin = rec.t/60;
+    const est = 100 - k*Math.max(0,(Tavg-40))*tMin;
+    out.textContent = Math.max(0,Math.min(100,est)).toFixed(1) + " %  (T̄=" + Tavg.toFixed(1) + "°C, t=" + tMin.toFixed(1) + " min)";
+  }
+
+  /* ================== EVENTOS ================== */
+  Object.values(els).forEach(el=>{
+    el.addEventListener("input", ()=>{
+      updateParamLabels();
+      if (!running && history.length){
+        // reflejar cambios de parámetros en la lectura estática (sin avanzar tiempo)
+        params = readParams();
+        const rec0 = history[0];
+        render();
+      }
+    });
+  });
+
+  document.getElementById("btnPlay").addEventListener("click", ()=>{
+    if (finished) return;
+    running = !running;
+    document.getElementById("btnPlay").textContent = running ? "⏸ Pausar" : "▶ Reanudar";
+    if (running){
+      setStatus("running");
+      lastTs = null;
+      if (!rafId) rafId = requestAnimationFrame(loop);
+    }
+  });
+
+  document.getElementById("btnReset").addEventListener("click", resetSim);
+
+  document.getElementById("speedSelect").addEventListener("change", (e)=>{
+    speed = parseFloat(e.target.value);
+  });
+
+  window.addEventListener("resize", ()=> drawCharts());
+
+  /* ================== INIT ================== */
+  updateParamLabels();
+  bindCalculators();
+  resetSim();
+
+})();
+</script>
+
+</body>
+</html>
